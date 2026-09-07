@@ -1,7 +1,7 @@
 import { getStore } from "@netlify/blobs";
 import crypto from "node:crypto";
 
-const PRODUCTS = [
+const DOMESTIC_PRODUCTS = [
   "Arroz","Fideos","Aceite","Sal","Azúcar","Harina","Atún","Legumbres",
   "Salsa de tomate","Café","Té","Papel higiénico","Toalla nova","Servilletas",
   "Bolsas de basura","Lavaloza","Esponjas","Paños de cocina","Cloro","Limpiapisos",
@@ -13,6 +13,23 @@ const PRODUCTS = [
   "Bicarbonato","Vinagre"
 ];
 
+const ADULTING_PRODUCTS = [
+  "Antidepresivos",
+  "Zopiclona",
+  "Boleta de la luz",
+  "Seguro médico",
+  "Deuda de la tarjeta",
+  "Terapia",
+  "Licencia médica",
+  "Cafeína",
+  "Omeprazol",
+  "8 horas de sueño",
+  "Salud mental",
+  "Perdonazo del CAE"
+];
+
+const PRODUCTS = [...DOMESTIC_PRODUCTS, ...ADULTING_PRODUCTS];
+
 const TOTAL_CARDS=20, STORE_NAME="bingo-depa-saguerssss", STATE_KEY="game-state";
 const headers={"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store"};
 const out=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
@@ -21,7 +38,18 @@ const empty=()=>({version:1,draws:[],players:[],createdAt:Date.now()});
 
 function rng(seed){let x=seed>>>0;return()=>{x^=x<<13;x^=x>>>17;x^=x<<5;return(x>>>0)/4294967296}}
 function shuffleSeeded(arr,seed){const a=[...arr],r=rng(seed);for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function card(cardId){const a=shuffleSeeded(PRODUCTS,0x51a9c0+cardId*7919).slice(0,24);a.splice(12,0,"LIBRE 🏠");return a}
+function card(cardId){
+  const baseSeed=0x51a9c0+cardId*7919;
+  const domestic=shuffleSeeded(DOMESTIC_PRODUCTS,baseSeed).slice(0,22);
+  const adulting=shuffleSeeded(ADULTING_PRODUCTS,baseSeed^0x9e3779b9).slice(0,2);
+  const funnySlots=shuffleSeeded([...Array(24).keys()],baseSeed^0x7f4a7c15).slice(0,2);
+  const funnySet=new Set(funnySlots);
+  const cells=[];
+  let d=0,a=0;
+  for(let i=0;i<24;i++)cells.push(funnySet.has(i)?adulting[a++]:domestic[d++]);
+  cells.splice(12,0,"LIBRE 🏠");
+  return cells;
+}
 function bingo(c,draws){
   const s=new Set(draws), hit=c.map((x,i)=>i===12||s.has(x)), lines=[];
   for(let r=0;r<5;r++)lines.push([0,1,2,3,4].map(col=>r*5+col));
