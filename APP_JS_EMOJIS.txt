@@ -1,0 +1,14 @@
+Agrega estas entradas al mapa de emojis existente de app.js, sin borrar las anteriores:
+
+"Antidepresivos":"💊",
+"Zopiclona":"😴",
+"Boleta de la luz":"💡",
+"Seguro médico":"🩺",
+"Deuda de la tarjeta":"💳",
+"Terapia":"🧠",
+"Licencia médica":"📄",
+"Cafeína":"☕",
+"Omeprazol":"💊",
+"8 horas de sueño":"🛌",
+"Salud mental":"🧠",
+"Perdonazo del CAE":"🎓"
